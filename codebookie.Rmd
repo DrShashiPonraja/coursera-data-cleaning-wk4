@@ -1,0 +1,87 @@
+---
+title: "Coursera Data Cleaning Project"
+author: "Shashi Ponraja"
+date: "28/01/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Project Description
+
+In this project, we convert raw gyroscope and accelerometer measurements from a study of people performing various activities while having a Samsung Galaxy Phone strapped to their hips.
+
+## Study Design and Data Processing
+
+A detailed account of how the data was obtained can be found at -
+http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+## Data Processing
+
+Step 1:
+The initial data was split into training (70%) and testing (30%) subsets. We began by re-combining the list of all
+subjects in the 2 subsets, back into a single dataset. Each subject was identified with a unique index, SubjectID. This was saved as step1.csv
+
+```{r}
+fileName <- 'UCI HAR Dataset 2/test/subject_test.txt'
+SubjectID_TestSet<-read.csv(fileName, header = FALSE)
+
+fileName <- 'UCI HAR Dataset 2/train/subject_train.txt'
+SubjectID_TrainSet<-read.csv(fileName, header = FALSE)
+
+names(SubjectID_TestSet)<-'SubjectID'
+names(SubjectID_TrainSet)<-'SubjectID'
+
+ActivityMeasures <- rbind(SubjectID_TestSet, SubjectID_TrainSet) 
+summary(ActivityMeasures)
+print(paste(as.numeric(nrow(SubjectID_TrainSet)), ' records in the training set'))
+print(paste(as.numeric(nrow(SubjectID_TestSet)), ' records in the test set'))
+print(paste(nrow(ActivityMeasures),' records in the combined set'))
+```
+
+Step 2 & 3:
+The activities people were engaged in when the various measurements occurred were added to column ActivityID, and column ActivityName was derived from comparing the number against the parent codebook. This was outputted as step2.csv, step3.csv
+```{r}
+fileName <- 'UCI HAR Dataset 2/activity_labels.txt'
+ActivityNames<-read.csv(fileName, sep = " ", header = FALSE)
+names(ActivityNames)<-c('ActivityID', 'ActivityName')
+ActivityNames
+```
+
+Step 4:
+This dataset had pre-calculated averages, standard deviations, and a host (>500!) of other variables, for each individual measurement interval(128 measurements in 10299 records). In this analysis, we did not recalculate these values, but re-constituted it into our own data. We specifically focused on measures of mean and standard deviation. These were outputted 
+in step4.csv
+
+```{r}
+fileName <- 'UCI HAR Dataset 2/test/X_test.txt'
+Features_TestSet<-read.table(fileName, header = FALSE)
+
+fileName <- 'UCI HAR Dataset 2/train/X_train.txt'
+Features_TrainSet<-read.table(fileName, header = FALSE)
+
+Measure_Features <- rbind(Features_TestSet, Features_TrainSet)
+## and load the feature list, which tells us what values are there
+fileName <- 'UCI HAR Dataset 2/features.txt'
+Features_List<-read.table(fileName, header = FALSE)
+
+names(Measure_Features)<-Features_List$V2
+FeatureMeanSD<-NULL
+for (i in names(Measure_Features)){
+  if (grepl('Mean|mean|std', i)){
+    FeatureMeanSD<-c(i,FeatureMeanSD)
+  }else{
+    ##print ('No Mean STD here')
+  }
+}
+print (FeatureMeanSD)
+```
+
+Step 5 & 6: The measures identified above were added to our main data frame. This was outputted in step5.csv
+
+Finally, using the melt function, we normalized the dataset. SubjectID|ActivityID|ActivityName were the id columns, and the pre-calculated averages were the variables.
+This was outputted as MeltedActivityMeasure.csv , and as ActMeasTidyData.txt, as per coursera requirements
+
+And that's it! 12 hours of my life never to return.
+
