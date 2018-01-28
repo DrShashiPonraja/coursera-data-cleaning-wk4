@@ -1,4 +1,5 @@
-Aim - code that converts raw Samsung Galaxy accelerometer data and converts iti into a tidy dataset, ready for analysis
+Aim - code that converts raw Samsung Galaxy accelerometer data and converts it into a tidy normalized dataset, ready for analysis
 
+In this Measure, we have certainly succeeded.
 
-
+For details on process look at the codebook.
